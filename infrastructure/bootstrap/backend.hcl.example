@@ -1,0 +1,8 @@
+# Copy to backend.hcl (gitignored), or let `make bootstrap` generate it from the
+# bootstrap stack's `backend_hcl` output. The bucket is created by the bootstrap
+# stack as "<project_name>-tfstate-<aws-account-id>".
+bucket       = "mediaflows-tfstate-000000000000"
+key          = "environments/prod/terraform.tfstate"
+region       = "ap-southeast-1"
+encrypt      = true
+use_lockfile = true

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "framework": {
+    "name": "next",
+    "version": "16"
+  },
+  "routes": [
+    {
+      "path": "/_next/static/*",
+      "target": {
+        "kind": "Static"
+      }
+    },
+    {
+      "path": "/*.*",
+      "target": {
+        "kind": "Static"
+      },
+      "fallback": {
+        "kind": "Compute",
+        "src": "default"
+      }
+    },
+    {
+      "path": "/*",
+      "target": {
+        "kind": "Compute",
+        "src": "default"
+      }
+    }
+  ],
+  "computeResources": [
+    {
+      "name": "default",
+      "entrypoint": "server.js",
+      "runtime": "nodejs20.x"
+    }
+  ]
+}

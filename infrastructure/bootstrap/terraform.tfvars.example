@@ -1,0 +1,24 @@
+# infrastructure/bootstrap/terraform.tfvars.example
+# Copy to terraform.tfvars (gitignored) and fill in the values below.
+# Run: terraform -chdir=infrastructure/bootstrap apply
+
+aws_region   = "ap-southeast-1"
+project_name = "mediaflows"
+environment  = "prod"
+
+github_owner = "mediaflows-tech"
+github_repo  = "app"
+
+# ── Operator-supplied secrets ────────────────────────────
+# db_password: 12+ chars, RDS-safe characters only (no /, @, ", or spaces).
+# Generate with: openssl rand -hex 16
+db_password = "CHANGE_ME"
+
+# nextauth_secret: 32 random bytes, base64-encoded.
+# Generate with: openssl rand -base64 32
+nextauth_secret = "CHANGE_ME"
+
+# github_access_token: GitHub PAT with `repo` scope (classic) or fine-grained
+# with Contents:Read + Metadata:Read on the app repo.
+# Create at: https://github.com/settings/tokens
+github_access_token = "ghp_CHANGE_ME"

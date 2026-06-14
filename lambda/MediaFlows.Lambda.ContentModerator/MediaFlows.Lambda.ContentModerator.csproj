@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.8.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
+    <PackageReference Include="Amazon.Lambda.S3Events" Version="3.*" />
+    <PackageReference Include="AWSSDK.Rekognition" Version="4.*" />
+    <PackageReference Include="AWSSDK.S3" Version="4.*" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.*" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.14.0" />
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MediaFlows.Shared\MediaFlows.Shared.csproj" />
+    <ProjectReference Include="..\..\src\MediaFlows.Data\MediaFlows.Data.csproj" />
+  </ItemGroup>
+</Project>

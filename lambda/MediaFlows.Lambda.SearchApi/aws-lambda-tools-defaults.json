@@ -1,0 +1,15 @@
+{
+  "Information": [
+    "This file provides default values for the deployment wizard inside Visual Studio and the dotnet lambda CLI."
+  ],
+  "profile": "",
+  "region": "ap-southeast-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 512,
+  "function-timeout": 30,
+  "function-handler": "MediaFlows.Lambda.SearchApi::MediaFlows.Lambda.SearchApi.Function::FunctionHandler",
+  "function-architecture": "arm64",
+  "function-name": "MediaFlows-SearchApi",
+  "function-description": "Full-text search API backed by PostgreSQL. Triggered by API Gateway GET /api/search."
+}

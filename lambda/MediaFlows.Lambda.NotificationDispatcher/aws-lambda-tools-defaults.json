@@ -1,0 +1,15 @@
+{
+  "Information": [
+    "This file provides default values for the deployment wizard inside Visual Studio and the dotnet lambda CLI."
+  ],
+  "profile": "",
+  "region": "ap-southeast-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 30,
+  "function-handler": "MediaFlows.Lambda.NotificationDispatcher::MediaFlows.Lambda.NotificationDispatcher.Function::FunctionHandler",
+  "function-architecture": "arm64",
+  "function-name": "MediaFlows-NotificationDispatcher",
+  "function-description": "Dispatches review and system notifications via SNS. Triggered by EventBridge events."
+}

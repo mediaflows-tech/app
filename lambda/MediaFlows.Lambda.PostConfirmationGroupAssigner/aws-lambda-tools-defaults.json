@@ -1,0 +1,15 @@
+{
+  "Information": [
+    "This file provides default values for the deployment wizard inside Visual Studio and the dotnet lambda CLI."
+  ],
+  "profile": "",
+  "region": "ap-southeast-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 10,
+  "function-handler": "MediaFlows.Lambda.PostConfirmationGroupAssigner::MediaFlows.Lambda.PostConfirmationGroupAssigner.Function::FunctionHandler",
+  "function-architecture": "arm64",
+  "function-name": "MediaFlows-PostConfirmationGroupAssigner",
+  "function-description": "Cognito post-confirmation trigger — adds self-registered users to the default Viewer group."
+}

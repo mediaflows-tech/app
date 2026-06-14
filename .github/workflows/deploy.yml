@@ -1,0 +1,236 @@
+# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  # Automatic push trigger suppressed for the public release. Restore the
+  # block below to re-enable CI deploys on pushes to main.
+  # push:
+  #   branches: [main]
+  #   paths-ignore:
+  #     - 'docs/**'
+  #     - '*.md'
+  #     - '.gitattributes'
+  #     - '.gitignore'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  id-token: write # Required for OIDC JWT token request
+  contents: read # Required for actions/checkout
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false # Never cancel in-progress deployments
+
+jobs:
+  build:
+    name: Build & Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version-label: ${{ steps.version.outputs.label }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --verbosity normal
+
+      - name: Generate version label
+        id: version
+        run: echo "label=v${{ github.run_number }}-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Publish web application
+        run: dotnet publish src/MediaFlows.Web -c Release -o ./publish/web
+
+      - name: Package web application
+        run: |
+          # Include EB platform extensions (nginx config, etc.)
+          if [ -d "src/MediaFlows.Web/.platform" ]; then
+            cp -r src/MediaFlows.Web/.platform publish/web/.platform
+          fi
+          cd publish/web && zip -r ../../deploy.zip .
+
+      - name: Publish Lambda - ThumbnailGenerator
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.ThumbnailGenerator \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/ThumbnailGenerator
+          cd publish/ThumbnailGenerator && zip -r ../../ThumbnailGenerator.zip .
+
+      - name: Publish Lambda - ContentModerator
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.ContentModerator \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/ContentModerator
+          cd publish/ContentModerator && zip -r ../../ContentModerator.zip .
+
+      - name: Publish Lambda - NotificationDispatcher
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.NotificationDispatcher \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/NotificationDispatcher
+          cd publish/NotificationDispatcher && zip -r ../../NotificationDispatcher.zip .
+
+      - name: Publish Lambda - SearchApi
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.SearchApi \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/SearchApi
+          cd publish/SearchApi && zip -r ../../SearchApi.zip .
+
+      - name: Publish Lambda - AnalyticsAggregator
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.AnalyticsAggregator \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/AnalyticsAggregator
+          cd publish/AnalyticsAggregator && zip -r ../../AnalyticsAggregator.zip .
+
+      - name: Publish Lambda - TrendingApi
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.TrendingApi \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/TrendingApi
+          cd publish/TrendingApi && zip -r ../../TrendingApi.zip .
+
+      - name: Publish Lambda - PostConfirmationGroupAssigner
+        run: |
+          dotnet publish lambda/MediaFlows.Lambda.PostConfirmationGroupAssigner \
+            -c Release -r linux-arm64 --self-contained false \
+            -o ./publish/PostConfirmationGroupAssigner
+          cd publish/PostConfirmationGroupAssigner && zip -r ../../PostConfirmationGroupAssigner.zip .
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: deployment-packages
+          path: |
+            deploy.zip
+            ThumbnailGenerator.zip
+            ContentModerator.zip
+            NotificationDispatcher.zip
+            SearchApi.zip
+            AnalyticsAggregator.zip
+            TrendingApi.zip
+            PostConfirmationGroupAssigner.zip
+          retention-days: 3
+
+  deploy-eb:
+    name: Deploy to Elastic Beanstalk
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    steps:
+      - name: Download deployment artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: deployment-packages
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-southeast-1
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token: ${{ env.AWS_SESSION_TOKEN }}
+          application_name: mediaflows-app
+          environment_name: mediaflows-prod
+          version_label: ${{ needs.build.outputs.version-label }}
+          region: ap-southeast-1
+          deployment_package: deploy.zip
+          wait_for_environment_recovery: 120
+
+  deploy-lambda:
+    name: Deploy Lambda Functions
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    strategy:
+      fail-fast: false
+      matrix:
+        function:
+          - name: ThumbnailGenerator
+            zip: ThumbnailGenerator.zip
+          - name: ContentModerator
+            zip: ContentModerator.zip
+          - name: NotificationDispatcher
+            zip: NotificationDispatcher.zip
+          - name: SearchApi
+            zip: SearchApi.zip
+          - name: AnalyticsAggregator
+            zip: AnalyticsAggregator.zip
+          - name: TrendingApi
+            zip: TrendingApi.zip
+          - name: PostConfirmationGroupAssigner
+            zip: PostConfirmationGroupAssigner.zip
+
+    steps:
+      - name: Download deployment artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: deployment-packages
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-southeast-1
+
+      - name: Check if ${{ matrix.function.name }} exists
+        id: check
+        run: |
+          if aws lambda get-function --function-name mediaflows-${{ matrix.function.name }}-prod >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::warning::Function mediaflows-${{ matrix.function.name }}-prod does not exist yet. Skipping code update — run terraform-apply first to create it, then re-run this workflow."
+          fi
+
+      - name: Deploy ${{ matrix.function.name }}
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          aws lambda update-function-code \
+            --function-name mediaflows-${{ matrix.function.name }}-prod \
+            --zip-file fileb://${{ matrix.function.zip }}
+
+      - name: Wait for update to complete
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          aws lambda wait function-updated \
+            --function-name mediaflows-${{ matrix.function.name }}-prod
+
+      - name: Verify deployment
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          aws lambda get-function \
+            --function-name mediaflows-${{ matrix.function.name }}-prod \
+            --query 'Configuration.[FunctionName, LastModified, CodeSize]' \
+            --output table

@@ -1,0 +1,40 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - corepack enable
+            - corepack prepare pnpm@latest --activate
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            - |
+              # Write non-secret config to .env.local at build time. The secrets
+              # (NEXTAUTH_SECRET/AUTH_SECRET, COGNITO_CLIENT_SECRET) are NOT set as
+              # Amplify env vars and are loaded at runtime from SSM by
+              # src/instrumentation.ts. AUTH_URL mirrors NEXTAUTH_URL for the
+              # Auth.js v5 AUTH_* ?? NEXTAUTH_* fallback.
+              echo "AUTH_URL=$NEXTAUTH_URL" >> .env.local
+              echo "AUTH_TRUST_HOST=true" >> .env.local
+              echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env.local
+              echo "COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID" >> .env.local
+              echo "COGNITO_ISSUER=$COGNITO_ISSUER" >> .env.local
+              echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID" >> .env.local
+              echo "NEXT_PUBLIC_COGNITO_CLIENT_ID=$NEXT_PUBLIC_COGNITO_CLIENT_ID" >> .env.local
+              echo "API_BASE_URL=$API_BASE_URL" >> .env.local
+            - pnpm build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+      buildSizeConfig:
+        maxBuildArtifactSize: '500MB'
+    environmentVariables:
+      NEXT_PUBLIC_CDN_URL: https://cdn.example.com
+      NEXT_PUBLIC_SIGNALR_URL: https://api.example.com/hubs

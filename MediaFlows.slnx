@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MediaFlows.Data/MediaFlows.Data.csproj" />
+    <Project Path="src/MediaFlows.Shared/MediaFlows.Shared.csproj" />
+    <Project Path="src/MediaFlows.Web/MediaFlows.Web.csproj" />
+  </Folder>
+  <Folder Name="/lambda/">
+    <Project Path="lambda/MediaFlows.Lambda.AnalyticsAggregator/MediaFlows.Lambda.AnalyticsAggregator.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.SearchApi/MediaFlows.Lambda.SearchApi.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.ThumbnailGenerator/MediaFlows.Lambda.ThumbnailGenerator.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.ContentModerator/MediaFlows.Lambda.ContentModerator.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.NotificationDispatcher/MediaFlows.Lambda.NotificationDispatcher.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.PostConfirmationGroupAssigner/MediaFlows.Lambda.PostConfirmationGroupAssigner.csproj" />
+    <Project Path="lambda/MediaFlows.Lambda.TrendingApi/MediaFlows.Lambda.TrendingApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MediaFlows.Tests.Common/MediaFlows.Tests.Common.csproj" />
+    <Project Path="tests/MediaFlows.Lambda.Tests/MediaFlows.Lambda.Tests.csproj" />
+    <Project Path="tests/MediaFlows.Services.Tests/MediaFlows.Services.Tests.csproj" />
+    <Project Path="tests/MediaFlows.Web.Tests/MediaFlows.Web.Tests.csproj" />
+  </Folder>
+</Solution>
