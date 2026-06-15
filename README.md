@@ -58,6 +58,7 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#main-contributors">Main Contributors</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -191,6 +192,23 @@ The frontend talks to the API over HTTPS and SignalR (realtime hub), assets are 
 ## Roadmap
 
 See the [open issues](https://github.com/mediaflows-tech/app/issues) for a full list of proposed features (and known issues).
+
+<p align="right"><a href="#readme-top">&uarr;</a></p>
+
+<!-- MAIN CONTRIBUTORS -->
+
+## Main Contributors
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center" width="25%"><a href="https://github.com/AlaskanTuna"><img src="https://github.com/AlaskanTuna.png" width="90" alt="Hee Zi Jie" /><br /><sub><b>Hee Zi Jie</b></sub></a></td>
+    <td align="center" width="25%"><a href="https://github.com/c3638"><img src="https://github.com/c3638.png" width="90" alt="KH" /><br /><sub><b>KH</b></sub></a></td>
+    <td align="center" width="25%"><a href="https://github.com/WhiteAvocad0"><img src="https://github.com/WhiteAvocad0.png" width="90" alt="Jeremy Woon" /><br /><sub><b>Jeremy Woon</b></sub></a></td>
+    <td align="center" width="25%"><a href="https://github.com/kymil4"><img src="https://github.com/kymil4.png" width="90" alt="Yk" /><br /><sub><b>Yk</b></sub></a></td>
+  </tr>
+</table>
+</div>
 
 <p align="right"><a href="#readme-top">&uarr;</a></p>
 
